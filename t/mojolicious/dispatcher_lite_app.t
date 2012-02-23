@@ -6,12 +6,24 @@ BEGIN {
   $ENV{MOJO_IOWATCHER} = 'Mojo::IOWatcher';
 }
 
-use Test::More tests => 15;
+use Test::More tests => 18;
 
 # "Just once I'd like to eat dinner with a celebrity who isn't bound and
 #  gagged."
 use Mojolicious::Lite;
 use Test::Mojo;
+
+# Wrap whole application for redirecting 404 to /
+hook around_dispatch => sub {
+  my ($next, $self) = @_;
+  $next->();
+  if ($self->tx->res->code == 404) {
+    $self->req->url->path('/');
+    $self->{stash} = {};
+    $self->tx->res(Mojo::Message::Response->new);
+    $next->();
+  }
+};
 
 # Wrap whole application
 hook around_dispatch => sub {
@@ -65,3 +77,6 @@ $t->get_ok('/wrap')->status_is(200)->content_is('Wrapped!');
 
 # GET /wrap/again
 $t->get_ok('/wrap/again')->status_is(200)->content_is('Wrapped again!');
+
+# GET /not_found
+$t->get_ok('/not_found')->status_is(200)->content_is('works');
