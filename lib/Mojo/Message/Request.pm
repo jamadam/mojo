@@ -267,8 +267,12 @@ sub _parse_env {
 
   # Path
   my $path = $url->path;
-  if   (my $value = $env->{PATH_INFO}) { $path->parse($value) }
-  else                                 { $path->parse('') }
+  if (my $value = $env->{PATH_INFO}) {
+    $url->generated_from_cgi_env(1);
+    $path->parse($value);
+  } else {
+    $path->parse('');
+  }
 
   # Base path
   if (my $value = $env->{SCRIPT_NAME}) {
@@ -280,8 +284,7 @@ sub _parse_env {
     my $buffer = $path->to_string;
     $value  =~ s|^/||;
     $value  =~ s|/$||;
-    $buffer =~ s|^/?$value/?||;
-    $buffer =~ s|^/||;
+    $buffer =~ s|^/?$value||;
     $path->parse($buffer);
   }
 

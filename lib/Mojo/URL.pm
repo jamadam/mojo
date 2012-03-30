@@ -9,7 +9,7 @@ use Mojo::Parameters;
 use Mojo::Path;
 use Mojo::Util qw/punycode_decode punycode_encode url_escape url_unescape/;
 
-has [qw/fragment host port scheme userinfo/];
+has [qw/fragment host port scheme userinfo generated_from_cgi_env/];
 has base => sub { Mojo::URL->new };
 
 # Characters (RFC 3986)
@@ -67,6 +67,7 @@ sub clone {
   $clone->query($self->query->clone);
   $clone->fragment($self->fragment);
   $clone->base($self->base->clone) if $self->{base};
+  $clone->generated_from_cgi_env($self->generated_from_cgi_env);
 
   return $clone;
 }
@@ -193,7 +194,7 @@ sub to_abs {
 
   # Absolute path
   my $path = $abs->path;
-  return $abs if $path->leading_slash;
+  return $abs if $path->leading_slash && ! $self->generated_from_cgi_env;
 
   # Inherit path
   my $base_path = $base->path;

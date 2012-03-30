@@ -1,6 +1,6 @@
 use Mojo::Base -strict;
 
-use Test::More tests => 180;
+use Test::More tests => 181;
 
 # "Aren't we forgetting the true meaning of Christmas?
 #  You know, the birth of Santa."
@@ -28,7 +28,7 @@ is $body, 1, 'body event has been emitted once';
 ok $req->is_finished, 'request is finished';
 is $req->method, 'POST', 'right method';
 is $req->headers->expect, '100-continue', 'right "Expect" value';
-is $req->url->path,       'foo/bar',      'right path';
+is $req->url->path,       '/foo/bar',      'right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->url->base->host, 'localhost',        'right base host';
 is $req->url->base->port, 8080,               'right base port';
@@ -38,6 +38,9 @@ ok $req->at_least_version('1.0'), 'at least version 1.0';
 ok !$req->at_least_version('1.2'), 'not version 1.2';
 is $req->body, 'Hello World', 'right content';
 is $req->url->to_abs->to_string,
+  'http://localhost:8080/test/index.cgi/foo/bar?lalala=23&bar=baz',
+  'right absolute URL';
+is $req->url->clone->to_abs->to_string,
   'http://localhost:8080/test/index.cgi/foo/bar?lalala=23&bar=baz',
   'right absolute URL';
 
@@ -59,7 +62,7 @@ $req->parse('Hello World');
 ok $req->is_finished, 'request is finished';
 is $req->method, 'POST', 'right method';
 is $req->headers->expect, '100-continue', 'right "Expect" value';
-is $req->url->path,       'foo/bar',      'right path';
+is $req->url->path,       '/foo/bar',      'right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->url->base->host, 'mojolicio.us',     'right base host';
 is $req->url->base->port, '',                 'right base port';
@@ -89,7 +92,7 @@ $req->parse('hello=world');
 ok $req->is_finished, 'request is finished';
 is $req->method, 'POST', 'right method';
 is $req->headers->expect, '100-continue', 'right "Expect" value';
-is $req->url->path,       'foo/bar',      'right path';
+is $req->url->path,       '/foo/bar',      'right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->url->base->host, 'localhost',        'right base host';
 is $req->url->base->port, 8080,               'right base port';
@@ -122,7 +125,7 @@ $req->parse('hello=world');
 ok $req->is_finished, 'request is finished';
 is $req->method, 'POST', 'right method';
 is $req->headers->expect, '100-continue', 'right "Expect" value';
-is $req->url->path,       'foo/bar',      'right path';
+is $req->url->path,       '/foo/bar',      'right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->url->base->host, 'localhost',        'right base host';
 is $req->url->base->port, 8080,               'right base port';
@@ -138,7 +141,7 @@ is $req->url->base,
   'http://Aladdin:open%20sesame@localhost:8080/test/index.cgi/',
   'right base URL';
 is $req->url->base->userinfo, 'Aladdin:open sesame', 'right userinfo';
-is $req->url, 'foo/bar?lalala=23&bar=baz', 'right URL';
+is $req->url, '/foo/bar?lalala=23&bar=baz', 'right URL';
 is $req->proxy->userinfo, 'Aladdin:open sesame', 'right proxy userinfo';
 
 # Parse Apache 2.2 (win32) like CGI environment variables and a body
@@ -273,7 +276,7 @@ $req->parse('hello=world');
 ok $req->is_finished, 'request is finished';
 is $req->method, 'GET', 'right method';
 is $req->url->base->host, 'localhost', 'right base host';
-is $req->url->path, 'foo/bar', 'right path';
+is $req->url->path, '/foo/bar', 'right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->version, '1.0', 'right version';
 ok $req->at_least_version('1.0'), 'at least version 1.0';
@@ -301,7 +304,7 @@ $req->parse('hello=world');
 ok $req->is_finished, 'request is finished';
 is $req->method, 'GET', 'right method';
 is $req->url->base->host, 'localhost', 'right base host';
-is $req->url->path, 'foo/bar/', 'right path';
+is $req->url->path, '/foo/bar/', 'right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->version, '1.0', 'right version';
 ok $req->at_least_version('1.0'), 'at least version 1.0';
@@ -353,7 +356,7 @@ $req->parse('hello=world');
 ok $req->is_finished, 'request is finished';
 is $req->method, 'GET', 'right method';
 is $req->url->base->host, 'localhost', 'right base host';
-is $req->url->path, '', 'right path';
+is $req->url->path, '', '/right path';
 is $req->url->base->path, '/test/index.cgi/', 'right base path';
 is $req->version, '1.0', 'right version';
 ok $req->at_least_version('1.0'), 'at least version 1.0';
