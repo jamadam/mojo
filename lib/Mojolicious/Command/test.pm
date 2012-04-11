@@ -45,7 +45,7 @@ sub run {
   }
 
   # Run tests
-  $ENV{HARNESS_OPTIONS} //= 'c';
+  $ENV{HARNESS_OPTIONS} = defined $ENV{HARNESS_OPTIONS} ? $ENV{HARNESS_OPTIONS} : 'c';
   require Test::Harness;
   Test::Harness::runtests(sort @tests);
 }

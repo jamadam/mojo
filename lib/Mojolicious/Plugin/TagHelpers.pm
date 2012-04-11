@@ -194,7 +194,8 @@ sub register {
   $app->helper(
     submit_button => sub {
       shift;
-      $self->_tag('input', value => shift // 'Ok', type => 'submit', @_);
+      my $value = shift; defined $value || ($value = 'Ok');
+      $self->_tag('input', value => $value, type => 'submit', @_);
     }
   );
 
@@ -214,7 +215,7 @@ sub register {
       my $content = @_ % 2 ? shift : undef;
 
       # Make sure content is wrapped
-      if (defined($content = $c->param($name) // $content)) {
+      if (defined($content = defined $c->param($name) ? $c->param($name) : $content)) {
         $cb = sub { xml_escape $content }
       }
 
@@ -240,7 +241,7 @@ sub _input {
   if (@values && $type ne 'submit') {
 
     # Checkbox or radiobutton
-    my $value = $attrs{value} // '';
+    my $value = defined $attrs{value} ? $attrs{value} : '';
     if ($type eq 'checkbox' || $type eq 'radio') {
       $attrs{value} = $value;
       $attrs{checked} = 'checked' if defined first { $value eq $_ } @values;
@@ -270,7 +271,7 @@ sub _tag {
   # Attributes
   my %attrs = @_;
   for my $key (sort keys %attrs) {
-    $tag .= qq/ $key="/ . xml_escape($attrs{$key} // '') . '"';
+    $tag .= qq/ $key="/ . xml_escape(defined $attrs{$key} ? $attrs{$key} : '') . '"';
   }
 
   # End tag

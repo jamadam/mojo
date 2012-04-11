@@ -4,10 +4,12 @@ use strict;
 use warnings;
 
 # Mojo modules are modern!
-use feature ();
+#use feature ();
 
 # No imports because we get subclassed, a lot!
 use Carp ();
+
+sub say(@) {print @_, "\n"}
 
 # "Kids, you tried your best and you failed miserably.
 #  The lesson is, never try."
@@ -40,6 +42,9 @@ sub import {
     # Can haz?
     *{"${caller}::has"} = sub { attr($caller, @_) };
   }
+  
+  my $caller = caller;
+  *{"${caller}::say"} = sub { say(@_) };
 
   # Mojo modules are strict!
   strict->import;
@@ -211,6 +216,10 @@ Create attributes. An array reference can be used to create more than one
 attribute. Pass an optional second argument to set a default value, it should
 be a constant or a sub reference. The sub reference will be excuted at
 accessor read time if there's no set value.
+
+=head2 C<say>
+
+Backported from perl-5.10.1
 
 =head1 DEBUGGING
 

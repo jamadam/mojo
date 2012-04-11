@@ -148,7 +148,7 @@ sub run {
     if ($tx->res->headers->content_type || '') =~ /JSON/i;
 
   # Selector
-  $self->_select($buffer, $charset // $tx->res->content->charset, $selector);
+  $self->_select($buffer, defined $charset ? $charset : $tx->res->content->charset, $selector);
 }
 
 sub _json {
@@ -156,7 +156,7 @@ sub _json {
   my $json = Mojo::JSON->new;
   return unless my $data = $json->decode($buffer);
   return unless $data = Mojo::JSON::Pointer->get($data, $pointer);
-  ref $data ~~ ['HASH', 'ARRAY'] ? say($json->encode($data)) : _say($data);
+  (ref $data eq 'HASH' || ref $data eq 'ARRAY') ? say($json->encode($data)) : _say($data);
 }
 
 sub _say {
