@@ -5,8 +5,6 @@ use File::Basename 'basename';
 use File::Spec::Functions 'file_name_is_absolute';
 use Mojo::Util 'decamelize';
 
-use constant DEBUG => $ENV{MOJO_CONFIG_DEBUG} || 0;
-
 # "Who are you, my warranty?!"
 sub load {
   my ($self, $file, $conf, $app) = @_;
@@ -55,18 +53,13 @@ sub register {
     # Default extension
     $file .= '.' . ($conf->{ext} || 'conf');
   }
-  warn "CONFIG FILE $file\n" if DEBUG;
 
   # Mode specific config file
   my $mode;
-  if ($file =~ /^(.*)\.([^\.]+)$/) {
-    $mode = join '.', $1, $app->mode, $2;
-    warn "MODE SPECIFIC CONFIG FILE $mode\n" if DEBUG;
-  }
+  if ($file =~ /^(.*)\.([^\.]+)$/) { $mode = join '.', $1, $app->mode, $2 }
 
   # Absolute path
-  $file = $app->home->rel_file($file)
-    unless file_name_is_absolute $file;
+  $file = $app->home->rel_file($file) unless file_name_is_absolute $file;
   $mode = $app->home->rel_file($mode)
     if defined $mode && !file_name_is_absolute $mode;
 
@@ -121,9 +114,9 @@ Mojolicious::Plugin::Config - Perl-ish configuration plugin
 =head1 DESCRIPTION
 
 L<Mojolicious::Plugin::Config> is a Perl-ish configuration plugin. The
-application object can be accessed via C<$app> or the C<app> function. You
-can extend the normal configuration file C<myapp.conf> with C<mode> specific
-ones like C<myapp.$mode.conf>. The code of this plugin is a good example for
+application object can be accessed via C<$app> or the C<app> function. You can
+extend the normal configuration file C<myapp.conf> with C<mode> specific ones
+like C<myapp.$mode.conf>. The code of this plugin is a good example for
 learning to build new plugins.
 
 =head1 OPTIONS
@@ -187,13 +180,6 @@ Parse configuration file.
   $plugin->register;
 
 Register plugin in L<Mojolicious> application.
-
-=head1 DEBUGGING
-
-You can set the C<MOJO_CONFIG_DEBUG> environment variable to get some
-advanced diagnostics information printed to C<STDERR>.
-
-  MOJO_CONFIG_DEBUG=1
 
 =head1 SEE ALSO
 

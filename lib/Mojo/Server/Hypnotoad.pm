@@ -19,8 +19,8 @@ sub DESTROY {
   return unless $self->{finished};
 
   # Manager
-  if (my $file = $self->{config}->{pid_file})  { unlink $file if -w $file }
-  if (my $file = $self->{config}->{lock_file}) { unlink $file if -w $file }
+  if (my $file = $self->{config}{pid_file})  { unlink $file if -w $file }
+  if (my $file = $self->{config}{lock_file}) { unlink $file if -w $file }
 }
 
 # "Marge? Since I'm not talking to Lisa,
@@ -108,7 +108,7 @@ sub run {
   $SIG{TTIN} = sub { $c->{workers}++ };
   $SIG{TTOU} = sub {
     return unless $c->{workers} && $c->{workers}--;
-    $self->{workers}->{shuffle keys %{$self->{workers}}}->{graceful} ||= time;
+    $self->{workers}{shuffle keys %{$self->{workers}}}{graceful} ||= time;
   };
 
   # Mainloop
@@ -136,7 +136,7 @@ sub _config {
   $self->{config} = $c;
   $c->{graceful_timeout}   ||= 30;
   $c->{heartbeat_interval} ||= 5;
-  $c->{heartbeat_timeout}  ||= 10;
+  $c->{heartbeat_timeout}  ||= 20;
   $c->{lock_file}          ||= catfile tmpdir, 'hypnotoad.lock';
   $c->{lock_file} .= ".$$";
   $c->{lock_timeout} ||= 0.5;
@@ -169,7 +169,7 @@ sub _heartbeat {
   return unless $self->{reader}->sysread(my $chunk, 4194304);
 
   # Update heartbeats
-  $self->{workers}->{$1} and $self->{workers}->{$1}->{time} = time
+  $self->{workers}{$1} and $self->{workers}{$1}{time} = time
     while $chunk =~ /(\d+)\n/g;
 }
 
@@ -255,7 +255,7 @@ sub _manage {
 }
 
 sub _pid {
-  return unless open my $file, '<', shift->{config}->{pid_file};
+  return unless open my $file, '<', shift->{config}{pid_file};
   my $pid = <$file>;
   chomp $pid;
   return $pid;
@@ -268,7 +268,7 @@ sub _pid_file {
   return if $self->{finished};
 
   # Check if PID file already exists
-  return if -e (my $file = $self->{config}->{pid_file});
+  return if -e (my $file = $self->{config}{pid_file});
 
   # Create PID file
   $self->{log}->info(qq/Creating process id file "$file"./);
@@ -294,7 +294,7 @@ sub _reap {
   # Clean up worker
   else {
     $self->{log}->debug("Worker $pid stopped.");
-    delete $self->{workers}->{$pid};
+    delete $self->{workers}{$pid};
   }
 }
 
@@ -304,7 +304,7 @@ sub _spawn {
 
   # Manager
   die "Can't fork: $!" unless defined(my $pid = fork);
-  return $self->{workers}->{$pid} = {time => time} if $pid;
+  return $self->{workers}{$pid} = {time => time} if $pid;
 
   # Prepare lock file
   my $c    = $self->{config};
@@ -348,8 +348,8 @@ sub _spawn {
   );
 
   # Clean worker environment
-  $SIG{INT} = $SIG{TERM} = $SIG{CHLD} = $SIG{USR2} = $SIG{TTIN} = $SIG{TTOU} =
-    'DEFAULT';
+  $SIG{INT} = $SIG{TERM} = $SIG{CHLD} = $SIG{USR2} = $SIG{TTIN} = $SIG{TTOU}
+    = 'DEFAULT';
   $SIG{QUIT} = sub { $loop->max_connections(0) };
   delete $self->{reader};
   delete $self->{poll};
@@ -401,9 +401,9 @@ For L<Mojolicious> and L<Mojolicious::Lite> applications it will default to
 C<production> mode.
 
 Optional modules L<EV>, L<IO::Socket::IP>, L<IO::Socket::SSL> and
-L<Net::Rendezvous::Publish> are supported transparently and used if
-installed. Individual features can also be disabled with the
-C<MOJO_NO_BONJOUR>, C<MOJO_NO_IPV6> and C<MOJO_NO_TLS> environment variables.
+L<Net::Rendezvous::Publish> are supported transparently and used if installed.
+Individual features can also be disabled with the C<MOJO_NO_BONJOUR>,
+C<MOJO_NO_IPV6> and C<MOJO_NO_TLS> environment variables.
 
 See L<Mojolicious::Guides::Cookbook> for deployment recipes.
 
@@ -491,16 +491,16 @@ Listen backlog size, defaults to C<SOMAXCONN>.
   clients => 100
 
 Maximum number of parallel client connections per worker process, defaults to
-C<1000>. Note that depending on how much your application may block, you
-might want to decrease this value and increase C<workers> instead for better
+C<1000>. Note that depending on how much your application may block, you might
+want to decrease this value and increase C<workers> instead for better
 performance.
 
 =head2 C<graceful_timeout>
 
   graceful_timeout => 15
 
-Maximum amount of time in seconds a graceful worker stop may take before
-being forced, defaults to C<30>.
+Maximum amount of time in seconds a graceful worker stop may take before being
+forced, defaults to C<30>.
 
 =head2 C<group>
 
@@ -519,15 +519,15 @@ Heartbeat interval in seconds, defaults to C<5>.
   heartbeat_timeout => 2
 
 Maximum amount of time in seconds before a worker without a heartbeat will be
-stopped, defaults to C<10>.
+stopped, defaults to C<20>.
 
 =head2 C<inactivity_timeout>
 
   inactivity_timeout => 10
 
 Maximum amount of time in seconds a connection can be inactive before getting
-closed, defaults to C<15>. Setting the value to C<0> will allow connections
-to be inactive indefinitely.
+closed, defaults to C<15>. Setting the value to C<0> will allow connections to
+be inactive indefinitely.
 
 =head2 C<keep_alive_requests>
 

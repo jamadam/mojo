@@ -35,8 +35,7 @@ sub detect {
   return 'psgi' if defined $ENV{PLACK_ENV};
 
   # CGI
-  return 'cgi'
-    if defined $ENV{PATH_INFO} || defined $ENV{GATEWAY_INTERFACE};
+  return 'cgi' if defined $ENV{PATH_INFO} || defined $ENV{GATEWAY_INTERFACE};
 
   # Nothing
   return $guess;
@@ -131,10 +130,7 @@ sub start_app {
 
 sub _command {
   my $module = shift;
-  if (my $e = Mojo::Loader->load($module)) {
-    return unless ref $e;
-    die $e;
-  }
+  if (my $e = Mojo::Loader->load($module)) { ref $e ? die $e : return }
   return $module->isa('Mojo::Command') ? $module : undef;
 }
 
@@ -217,8 +213,8 @@ List available options for generator command with short descriptions.
 
   $ mojo generate app <AppName>
 
-Generate application directory structure for a fully functional
-L<Mojolicious> application.
+Generate application directory structure for a fully functional L<Mojolicious>
+application.
 
 =head2 C<generate lite_app>
 

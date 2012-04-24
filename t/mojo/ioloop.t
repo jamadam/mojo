@@ -217,7 +217,7 @@ is $client_close, 1, 'client emitted close event once';
 
 # Stream throttling
 $port = Mojo::IOLoop->generate_port;
-my ($client, $server, $client_after, $server_before, $server_after) = '';
+my ($client, $server, $client_after, $server_before, $server_after);
 Mojo::IOLoop->server(
   {address => '127.0.0.1', port => $port} => sub {
     my ($loop, $stream) = @_;
@@ -286,8 +286,7 @@ is(
   Mojo::IOLoop->singleton->reactor,
   'right default'
 );
-is(Mojo::IOLoop::Delay->new->ioloop, Mojo::IOLoop->singleton,
-  'right default');
+is(Mojo::IOLoop::Delay->new->ioloop, Mojo::IOLoop->singleton, 'right default');
 is(
   Mojo::IOLoop::Server->new->reactor,
   Mojo::IOLoop->singleton->reactor,

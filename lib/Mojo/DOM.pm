@@ -128,8 +128,8 @@ sub find {
   my $results = Mojo::DOM::CSS->new(tree => $self->tree)->select($selector);
 
   # Upgrade results
-  @$results =
-    map { $self->new->charset($self->charset)->tree($_)->xml($self->xml) }
+  @$results
+    = map { $self->new->charset($self->charset)->tree($_)->xml($self->xml) }
     @$results;
 
   return Mojo::Collection->new(@$results);
@@ -469,8 +469,8 @@ are lowercased and selectors need to be lowercase as well.
   say $dom->at('p')->text;
   say $dom->p->{id};
 
-If XML processing instructions are found, the parser will automatically
-switch into XML mode and everything becomes case sensitive.
+If XML processing instructions are found, the parser will automatically switch
+into XML mode and everything becomes case sensitive.
 
   my $dom = Mojo::DOM->new('<?xml version="1.0"?><P ID="greeting">Hi!</P>');
   say $dom->at('P')->text;
@@ -568,11 +568,11 @@ Render content of this element to XML.
 
   my $collection = $dom->find('html title');
 
-Find elements with CSS3 selectors and return a L<Mojo::Collection> object.
-All selectors from L<Mojo::DOM::CSS> are supported.
+Find elements with CSS3 selectors and return a L<Mojo::Collection> object. All
+selectors from L<Mojo::DOM::CSS> are supported.
 
   # Find a specific element and extract information
-  my $id = $dom->find('div')->[23]->{id};
+  my $id = $dom->find('div')->[23]{id};
 
   # Extract information from multiple elements
   my @headers = $dom->find('h1, h2, h3')->map(sub { shift->text })->each;

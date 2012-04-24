@@ -4,7 +4,6 @@ use Mojo::Base -strict;
 BEGIN { $ENV{MOJO_NO_BONJOUR} = $ENV{MOJO_NO_IPV6} = 1 }
 
 use Test::More;
-
 plan skip_all => 'set TEST_EV to enable this test (developer only!)'
   unless $ENV{TEST_EV};
 plan skip_all => 'EV 4.0 required for this test!' unless eval 'use EV 4.0; 1';
@@ -50,8 +49,7 @@ ok !$writable, 'handle is not writable';
 ok !$reactor->is_readable($listen), 'handle is not readable';
 
 # Connect
-my $client =
-  IO::Socket::INET->new(PeerAddr => '127.0.0.1', PeerPort => $port);
+my $client = IO::Socket::INET->new(PeerAddr => '127.0.0.1', PeerPort => $port);
 $reactor->timer(1 => sub { shift->stop });
 $reactor->start;
 ok $readable, 'handle is readable';
@@ -212,7 +210,7 @@ is ref Mojo::IOLoop->singleton->reactor, 'Mojo::Reactor::EV', 'right object';
 ok !Mojo::IOLoop->is_running, 'loop is not running';
 $port = Mojo::IOLoop->generate_port;
 my ($server_err, $server_running, $client_err, $client_running);
-($server, $client) = '';
+$server = $client = '';
 Mojo::IOLoop->server(
   {address => '127.0.0.1', port => $port} => sub {
     my ($loop, $stream) = @_;

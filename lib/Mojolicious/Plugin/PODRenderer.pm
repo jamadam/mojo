@@ -68,30 +68,30 @@ sub register {
         }
       );
 
-      # Rewrite code sections for syntax highlighting
+      # Rewrite code blocks for syntax highlighting
       $dom->find('pre')->each(
         sub {
           my $e = shift;
           return if $e->all_text =~ /^\s*\$\s+/m;
           my $attrs = $e->attrs;
           my $class = $attrs->{class};
-          $attrs->{class} =
-            defined $class ? "$class prettyprint" : 'prettyprint';
+          $attrs->{class}
+            = defined $class ? "$class prettyprint" : 'prettyprint';
         }
       );
 
       # Rewrite headers
       my $url = $self->req->url->clone;
-      my @sections;
+      my @parts;
       $dom->find('h1, h2, h3')->each(
         sub {
           my $e = shift;
           my $anchor = my $text = $e->all_text;
           $anchor =~ s/\s+/_/g;
-          $anchor = url_escape $anchor, 'A-Za-z0-9_';
+          $anchor = url_escape $anchor, '^A-Za-z0-9_';
           $anchor =~ s/\%//g;
-          push @sections, [] if $e->type eq 'h1' || !@sections;
-          push @{$sections[-1]}, $text, $url->fragment($anchor)->to_abs;
+          push @parts, [] if $e->type eq 'h1' || !@parts;
+          push @{$parts[-1]}, $text, $url->fragment($anchor)->to_abs;
           $e->replace_content(
             $self->link_to(
               $text => $url->fragment('toc')->to_abs,
@@ -108,11 +108,7 @@ sub register {
 
       # Combine everything to a proper response
       $self->content_for(perldoc => "$dom");
-      $self->render(
-        inline   => $PERLDOC,
-        title    => $title,
-        sections => \@sections
-      );
+      $self->render(inline => $PERLDOC, title => $title, parts => \@parts);
       $self->res->headers->content_type('text/html;charset="UTF-8"');
     }
   ) unless $conf->{no_perldoc};
@@ -171,9 +167,8 @@ Mojolicious::Plugin::PODRenderer - POD renderer plugin
 
 =head1 DESCRIPTION
 
-L<Mojolicious::Plugin::PODRenderer> is a renderer for true Perl hackers,
-rawr! The code of this plugin is a good example for learning to build new
-plugins.
+L<Mojolicious::Plugin::PODRenderer> is a renderer for true Perl hackers, rawr!
+The code of this plugin is a good example for learning to build new plugins.
 
 =head1 OPTIONS
 

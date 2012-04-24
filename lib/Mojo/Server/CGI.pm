@@ -3,7 +3,7 @@ use Mojo::Base 'Mojo::Server';
 
 use constant CHUNK_SIZE => $ENV{MOJO_CHUNK_SIZE} || 131072;
 
-has nph => 0;
+has 'nph';
 
 # "Lisa, you're a Buddhist, so you believe in reincarnation.
 #  Eventually, Snowball will be reborn as a higher lifeform...
@@ -146,8 +146,8 @@ Activate non parsed header mode.
 
 =head1 METHODS
 
-L<Mojo::Server::CGI> inherits all methods from L<Mojo::Server> and
-implements the following new ones.
+L<Mojo::Server::CGI> inherits all methods from L<Mojo::Server> and implements
+the following new ones.
 
 =head2 C<run>
 

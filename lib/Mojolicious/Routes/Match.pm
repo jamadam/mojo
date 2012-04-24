@@ -45,7 +45,7 @@ sub match {
 
   # Conditions
   if (my $over = $r->over) {
-    my $conditions = $self->{conditions} ||= $r->root->conditions;
+    my $conditions = $self->{conditions} ||= $self->root->conditions;
     for (my $i = 0; $i < @$over; $i += 2) {
       return unless my $condition = $conditions->{$over->[$i]};
       return if !$condition->($r, $c, $captures, $over->[$i + 1]);
@@ -72,7 +72,7 @@ sub match {
     delete $captures->{app};
   }
 
-  # Waypoint
+  # DEPRECATED in Leaf Fluttering In Wind!
   return $self->endpoint($r) if $r->block && $empty;
 
   # Endpoint
@@ -88,7 +88,7 @@ sub match {
 
     # Reset
     $self->{path} = $path;
-    if   ($r->parent) { $self->stack([@$snapshot]) }
+    if   ($r->parent) { $self->captures($captures)->stack([@$snapshot]) }
     else              { $self->captures({})->stack([]) }
   }
 
@@ -140,8 +140,8 @@ sub path_for {
   my $captures = $self->captures;
   %values = (%$captures, format => undef, %values);
   my $pattern = $endpoint->pattern;
-  $values{format} =
-    defined $captures->{format}
+  $values{format}
+    = defined $captures->{format}
     ? $captures->{format}
     : $pattern->defaults->{format}
     if $pattern->reqs->{format};
@@ -166,11 +166,11 @@ Mojolicious::Routes::Match - Routes visitor
 
   # Routes
   my $r = Mojolicious::Routes->new;
-  $r->route('/foo')->to(action => 'foo');
-  $r->route('/bar')->to(action => 'bar');
+  $r->get('/foo')->to(action => 'foo');
+  $r->put('/bar')->to(action => 'bar');
 
   # Match
-  my $m = Mojolicious::Routes::Match->new(GET => '/bar');
+  my $m = Mojolicious::Routes::Match->new(PUT => '/bar');
   $m->match($r);
   say $m->captures->{action};
 

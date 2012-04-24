@@ -88,8 +88,8 @@ sub parse {
   my $tree    = ['root'];
   my $current = $tree;
   while ($html =~ m/\G$TOKEN_RE/gcs) {
-    my ($text, $pi, $comment, $cdata, $doctype, $tag) =
-      ($1, $2, $3, $4, $5, $6);
+    my ($text, $pi, $comment, $cdata, $doctype, $tag)
+      = ($1, $2, $3, $4, $5, $6);
 
     # Text
     if (length $text) {
@@ -292,7 +292,7 @@ sub _render {
     # Attributes
     my @attrs;
     for my $key (sort keys %{$tree->[2]}) {
-      my $value = $tree->[2]->{$key};
+      my $value = $tree->[2]{$key};
 
       # No value
       push @attrs, $key and next unless defined $value;

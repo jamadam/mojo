@@ -47,8 +47,8 @@ websocket '/test' => sub {
 
 # HTTP server for testing
 my $ua = Mojo::UserAgent->new;
-my $daemon =
-  Mojo::Server::Daemon->new(app => app, ioloop => Mojo::IOLoop->singleton);
+my $daemon
+  = Mojo::Server::Daemon->new(app => app, ioloop => Mojo::IOLoop->singleton);
 my $port = Mojo::IOLoop->new->generate_port;
 $daemon->listen(["http://127.0.0.1:$port"])->start;
 
@@ -56,8 +56,8 @@ $daemon->listen(["http://127.0.0.1:$port"])->start;
 my $proxy = Mojo::IOLoop->generate_port;
 my (%buffer, $connected);
 my ($read, $sent, $fail) = 0;
-my $nf =
-    "HTTP/1.1 404 NOT FOUND\x0d\x0a"
+my $nf
+  = "HTTP/1.1 404 NOT FOUND\x0d\x0a"
   . "Content-Length: 0\x0d\x0a"
   . "Connection: close\x0d\x0a\x0d\x0a";
 my $ok = "HTTP/1.1 200 OK\x0d\x0aConnection: keep-alive\x0d\x0a\x0d\x0a";
@@ -67,13 +67,13 @@ Mojo::IOLoop->server(
     $stream->on(
       read => sub {
         my ($stream, $chunk) = @_;
-        if (my $server = $buffer{$client}->{connection}) {
+        if (my $server = $buffer{$client}{connection}) {
           return Mojo::IOLoop->stream($server)->write($chunk);
         }
-        $buffer{$client}->{client} .= $chunk;
-        if ($buffer{$client}->{client} =~ /\x0d?\x0a\x0d?\x0a$/) {
-          my $buffer = $buffer{$client}->{client};
-          $buffer{$client}->{client} = '';
+        $buffer{$client}{client} .= $chunk;
+        if ($buffer{$client}{client} =~ /\x0d?\x0a\x0d?\x0a$/) {
+          my $buffer = $buffer{$client}{client};
+          $buffer{$client}{client} = '';
           if ($buffer =~ /CONNECT (\S+):(\d+)?/) {
             $connected = "$1:$2";
             $fail = 1 if $2 == $port + 1;
@@ -85,7 +85,7 @@ Mojo::IOLoop->server(
                   Mojo::IOLoop->remove($client);
                   return delete $buffer{$client};
                 }
-                $buffer{$client}->{connection} = $server;
+                $buffer{$client}{connection} = $server;
                 $stream->on(
                   read => sub {
                     my ($stream, $chunk) = @_;
@@ -110,8 +110,8 @@ Mojo::IOLoop->server(
     );
     $stream->on(
       close => sub {
-        Mojo::IOLoop->remove($buffer{$client}->{connection})
-          if $buffer{$client}->{connection};
+        Mojo::IOLoop->remove($buffer{$client}{connection})
+          if $buffer{$client}{connection};
         delete $buffer{$client};
       }
     );

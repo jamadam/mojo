@@ -153,7 +153,7 @@ sub _get_data_file {
   }
 
   # Find file
-  return Mojo::Command->get_data($rel, $self->{index}->{$rel});
+  return Mojo::Command->get_data($rel, $self->{index}{$rel});
 }
 
 sub _get_file {
@@ -191,8 +191,8 @@ L<Mojolicious::Static> implements the following attributes.
   my $classes = $static->classes;
   $static     = $static->classes(['main']);
 
-Classes to use for finding files in C<DATA> section, first one has the
-highest precedence, defaults to C<main>.
+Classes to use for finding files in C<DATA> section, first one has the highest
+precedence, defaults to C<main>.
 
   # Add another class with static files in DATA section
   push @{$static->classes}, 'Mojolicious::Plugin::Fun';
@@ -209,8 +209,8 @@ Directories to serve static files from, first one has the highest precedence.
 
 =head1 METHODS
 
-L<Mojolicious::Static> inherits all methods from L<Mojo::Base>
-and implements the following ones.
+L<Mojolicious::Static> inherits all methods from L<Mojo::Base> and implements
+the following ones.
 
 =head2 C<dispatch>
 
