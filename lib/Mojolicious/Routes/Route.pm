@@ -5,7 +5,7 @@ use Carp 'croak';
 use Mojolicious::Routes::Pattern;
 use Scalar::Util qw(blessed weaken);
 
-has [qw(block inline parent partial)];
+has [qw(inline parent partial)];
 has 'children' => sub { [] };
 has pattern    => sub { Mojolicious::Routes::Pattern->new };
 
@@ -86,9 +86,6 @@ sub is_endpoint {
 
   # Bridge
   return if $self->inline;
-
-  # DEPRECATED in Leaf Fluttering In Wind!
-  return 1 if $self->block;
 
   # Check number of children
   return !@{$self->children};
@@ -171,6 +168,10 @@ sub route {
 sub to {
   my $self = shift;
 
+  # No argument
+  my $pattern = $self->pattern;
+  return $pattern->defaults unless @_;
+
   # Single argument
   my ($shortcut, $defaults);
   if (@_ == 1) {
@@ -213,7 +214,6 @@ sub to {
   }
 
   # Merge defaults
-  my $pattern = $self->pattern;
   $pattern->defaults({%{$pattern->defaults}, %$defaults}) if $defaults;
 
   return $self;
@@ -234,12 +234,6 @@ sub via {
   my $methods = [map uc($_), @{ref $_[0] ? $_[0] : [@_]}];
   $self->{via} = $methods if @$methods;
   return $self;
-}
-
-# DEPRECATED in Leaf Fluttering In Wind!
-sub waypoint {
-  warn "Mojolicious::Routes::Route->waypoint is DEPRECATED!\n";
-  shift->route(@_)->block(1);
 }
 
 sub websocket {
@@ -566,17 +560,18 @@ Generate route matching all HTTP request methods.
 
 =head2 C<to>
 
-  $r = $r->to(action => 'foo');
-  $r = $r->to({action => 'foo'});
-  $r = $r->to('controller#action');
-  $r = $r->to('controller#action', foo => 'bar');
-  $r = $r->to('controller#action', {foo => 'bar'});
-  $r = $r->to($app);
-  $r = $r->to($app, foo => 'bar');
-  $r = $r->to($app, {foo => 'bar'});
-  $r = $r->to('MyApp');
-  $r = $r->to('MyApp', foo => 'bar');
-  $r = $r->to('MyApp', {foo => 'bar'});
+  my $defaults = $r->to;
+  $r           = $r->to(action => 'foo');
+  $r           = $r->to({action => 'foo'});
+  $r           = $r->to('controller#action');
+  $r           = $r->to('controller#action', foo => 'bar');
+  $r           = $r->to('controller#action', {foo => 'bar'});
+  $r           = $r->to($app);
+  $r           = $r->to($app, foo => 'bar');
+  $r           = $r->to($app, {foo => 'bar'});
+  $r           = $r->to('MyApp');
+  $r           = $r->to('MyApp', foo => 'bar');
+  $r           = $r->to('MyApp', {foo => 'bar'});
 
 Set default parameters for this route.
 

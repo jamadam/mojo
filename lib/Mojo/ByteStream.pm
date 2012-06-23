@@ -78,6 +78,7 @@ sub split {
   return Mojo::Collection->new(map { $self->new($_) } split $pattern, $$self);
 }
 
+# "My cat's breath smells like cat food."
 sub to_string { ${shift()} }
 
 1;

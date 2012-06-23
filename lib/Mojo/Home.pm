@@ -11,8 +11,7 @@ use File::Find 'find';
 use File::Spec::Functions qw(abs2rel catdir catfile splitdir);
 use FindBin;
 use Mojo::Asset::File;
-use Mojo::Command;
-use Mojo::Loader;
+use Mojo::Util 'class_to_path';
 
 has app_class => 'Mojo::HelloWorld';
 
@@ -35,25 +34,13 @@ sub detect {
 
   # Try to find home from lib directory
   if ($class) {
-
-    # Load
-    my $file = Mojo::Command->class_to_path($class);
-    unless ($INC{$file}) {
-      if (my $e = Mojo::Loader->load($class)) { die $e if ref $e }
-    }
-
-    # Detect
+    my $file = class_to_path $class;
     if (my $path = $INC{$file}) {
-
-      # Directory
       $path =~ s/$file$//;
       my @home = splitdir $path;
 
       # Remove "lib" and "blib"
-      while (@home) {
-        last unless $home[-1] =~ /^b?lib$/ || $home[-1] eq '';
-        pop @home;
-      }
+      pop @home while @home && ($home[-1] =~ /^b?lib$/ || $home[-1] eq '');
 
       # Turn into absolute path
       $self->{parts} = [splitdir(abs_path(catdir(@home) || '.'))];
