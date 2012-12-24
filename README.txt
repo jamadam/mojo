@@ -17,3 +17,5 @@ To use morbo with it, you must at least upgrade Socket module to
 version 1.81 or higher. Please do the following command.
 
 $ cpanm Socket
+
+To use websocket, you must at least install Digest::SHA.
