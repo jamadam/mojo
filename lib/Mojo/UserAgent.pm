@@ -444,7 +444,7 @@ sub _start {
   # We identify ourselves and accept gzip compression
   my $headers = $req->headers;
   $headers->user_agent($self->name) unless $headers->user_agent;
-  $headers->accept_encoding('gzip') unless $headers->accept_encoding;
+  $headers->accept_encoding('gzip') unless $headers->accept_encoding && $Compress::Raw::Zlib::VERSION;
   if (my $jar = $self->cookie_jar) { $jar->inject($tx) }
 
   # Connect and add request timeout if necessary
