@@ -181,7 +181,6 @@ sub _end {
     # Inline elements can only cross other inline elements
     return if !$self->xml && $INLINE{$end} && !$INLINE{$next->[1]};
 
-    # Parent
     $next = $next->[3];
   }
 
@@ -218,16 +217,16 @@ sub _render {
   return $tree->[1] if $e eq 'raw';
 
   # DOCTYPE
-  return "<!DOCTYPE" . $tree->[1] . ">" if $e eq 'doctype';
+  return '<!DOCTYPE' . $tree->[1] . '>' if $e eq 'doctype';
 
   # Comment
-  return "<!--" . $tree->[1] . "-->" if $e eq 'comment';
+  return '<!--' . $tree->[1] . '-->' if $e eq 'comment';
 
   # CDATA
-  return "<![CDATA[" . $tree->[1] . "]]>" if $e eq 'cdata';
+  return '<![CDATA[' . $tree->[1] . ']]>' if $e eq 'cdata';
 
   # Processing instruction
-  return "<?" . $tree->[1] . "?>" if $e eq 'pi';
+  return '<?' . $tree->[1] . '?>' if $e eq 'pi';
 
   # Start tag
   my $start = $e eq 'root' ? 1 : 2;

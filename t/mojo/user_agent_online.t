@@ -206,9 +206,15 @@ is $tx->req->url,    'https://ipv6.google.com', 'right url';
 is $tx->res->code,   200,                       'right status';
 
 # HTTPS request that requires SNI
-$tx = $ua->get('https://google.de');
-like $ua->ioloop->stream($tx->connection)
-  ->handle->peer_certificate('commonName'), qr/google\.de/, 'right name';
+SKIP: {
+  skip 'SNI support required!', 1
+    unless IO::Socket::SSL->can('can_client_sni')
+    && IO::Socket::SSL->can_client_sni;
+
+  $tx = $ua->get('https://google.de');
+  like $ua->ioloop->stream($tx->connection)
+    ->handle->peer_certificate('commonName'), qr/google\.de/, 'right name';
+}
 
 # Fresh user agent again
 $ua = Mojo::UserAgent->new;
@@ -241,6 +247,10 @@ is $tx->res->code,   200,                                 'right status';
 is $tx->previous->req->method, 'GET', 'right method';
 is $tx->previous->req->url, 'http://www.wikipedia.org/wiki/Perl', 'right url';
 is $tx->previous->res->code, 301, 'right status';
+is $tx->redirects->[-1]->req->method, 'GET', 'right method';
+is $tx->redirects->[-1]->req->url, 'http://www.wikipedia.org/wiki/Perl',
+  'right url';
+is $tx->redirects->[-1]->res->code, 301, 'right status';
 
 # Custom chunked request
 $tx = Mojo::Transaction::HTTP->new;
