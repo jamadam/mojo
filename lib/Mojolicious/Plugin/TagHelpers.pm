@@ -232,6 +232,8 @@ sub _text_area {
 
 1;
 
+=encoding utf8
+
 =head1 NAME
 
 Mojolicious::Plugin::TagHelpers - Tag helpers plugin
@@ -432,7 +434,7 @@ Generate portable script tag for C<Javascript> asset.
   %= link_to index => {format => 'txt'} => (class => 'links') => begin
     Home
   % end
-  %= link_to Contact => Mojo::URL->new('mailto:sri@example.com')
+  %= link_to Contact => 'mailto:sri@example.com'
   <%= link_to index => begin %>Home<% end %>
   <%= link_to '/path/to/file' => begin %>File<% end %>
   <%= link_to 'http://mojolicio.us' => begin %>Mojolicious<% end %>

@@ -45,6 +45,8 @@ sub _step {
 
 1;
 
+=encoding utf8
+
 =head1 NAME
 
 Mojo::IOLoop::Delay - Manage callbacks and control the flow of events
@@ -63,6 +65,7 @@ Mojo::IOLoop::Delay - Manage callbacks and control the flow of events
       $end->();
     });
   }
+  $delay->wait unless Mojo::IOLoop->is_running;
 
   # Sequentialize multiple events
   my $delay = Mojo::IOLoop::Delay->new;
@@ -89,8 +92,6 @@ Mojo::IOLoop::Delay - Manage callbacks and control the flow of events
       say 'And done after 5 seconds total.';
     }
   );
-
-  # Wait for events if necessary
   $delay->wait unless Mojo::IOLoop->is_running;
 
 =head1 DESCRIPTION

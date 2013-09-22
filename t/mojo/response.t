@@ -1,7 +1,7 @@
 use Mojo::Base -strict;
 
 use Test::More;
-use IO::Compress::Gzip 'gzip';
+BEGIN {eval {require IO::Compress::Gzip; import IO::Compress::Gzip qw(gzip)}}
 use Mojo::Asset::File;
 use Mojo::Content::Single;
 use Mojo::Content::MultiPart;

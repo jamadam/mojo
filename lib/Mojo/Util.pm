@@ -40,8 +40,8 @@ our @EXPORT_OK = (
   qw(b64_decode b64_encode camelize class_to_file class_to_path decamelize),
   qw(decode deprecated encode get_line hmac_sha1_sum html_unescape md5_bytes),
   qw(md5_sum monkey_patch punycode_decode punycode_encode quote),
-  qw(secure_compare sha1_bytes sha1_sum slurp spurt squish steady_time trim),
-  qw(unquote url_escape url_unescape xml_escape xor_encode)
+  qw(secure_compare sha1_bytes sha1_sum slurp split_header spurt squish),
+  qw(steady_time trim unquote url_escape url_unescape xml_escape xor_encode)
 );
 
 sub b64_decode { decode_base64($_[0]) }
@@ -51,7 +51,7 @@ sub camelize {
   my $str = shift;
   return $str if $str =~ /^[A-Z]/;
 
-  # Camel case words
+  # CamelCase words
   return join '::', map {
     join '', map { ucfirst lc } split /_/, $_
   } split /-/, $str;
@@ -74,7 +74,7 @@ sub decamelize {
   my @parts;
   for my $part (split /::/, $str) {
 
-    # Snake case words
+    # snake_case words
     my @words;
     push @words, lc $1 while $part =~ s/([A-Z]{1}[^A-Z]*)//;
     push @parts, join '_', @words;
@@ -114,8 +114,7 @@ sub hmac_sha1_sum { unpack 'H*', hmac_sha1(@_) }
 sub html_unescape {
   my $str = shift;
   return $str if index($str, '&') == -1;
-  $str
-    =~ s/&(?:\#((?:\d{1,7}|x[[:xdigit:]]{1,6}));|(\w+;?))/_decode($1, $2)/ge;
+  $str =~ s/&(?:\#((?:\d{1,7}|x[0-9a-fA-F]{1,6}));|(\w+;?))/_decode($1, $2)/ge;
   return $str;
 }
 
@@ -244,6 +243,26 @@ sub slurp {
   return $content;
 }
 
+sub split_header {
+  my $str = shift;
+
+  my (@tree, @token);
+  while ($str =~ s/^[,;\s]*([^=;, ]+)\s*//) {
+    push @token, $1, undef;
+    $token[-1] = unquote($1)
+      if $str =~ s/^=\s*("(?:\\\\|\\"|[^"])*"|[^;, ]*)\s*//;
+
+    # Separator
+    $str =~ s/^;\s*//;
+    next unless $str =~ s/^,\s*//;
+    push @tree, [@token];
+    @token = ();
+  }
+
+  # Take care of final token
+  return [@token ? (@tree, \@token) : @tree];
+}
+
 sub spurt {
   my ($content, $path) = @_;
   croak qq{Can't open file "$path": $!} unless open my $file, '>', $path;
@@ -288,7 +307,7 @@ sub url_escape {
 sub url_unescape {
   my $str = shift;
   return $str if index($str, '%') == -1;
-  $str =~ s/%([[:xdigit:]]{2})/chr(hex($1))/ge;
+  $str =~ s/%([0-9a-fA-F]{2})/chr(hex($1))/ge;
   return $str;
 }
 
@@ -351,6 +370,8 @@ sub _encoding {
 
 1;
 
+=encoding utf8
+
 =head1 NAME
 
 Mojo::Util - Portable utility functions
@@ -374,22 +395,22 @@ L<Mojo::Util> implements the following functions.
 
 =head2 b64_decode
 
-  my $str = b64_decode $b64;
+  my $bytes = b64_decode $b64;
 
-Base64 decode string.
+Base64 decode bytes.
 
 =head2 b64_encode
 
-  my $b64 = b64_encode $str;
-  my $b64 = b64_encode $str, "\n";
+  my $b64 = b64_encode $bytes;
+  my $b64 = b64_encode $bytes, "\n";
 
-Base64 encode string, the line ending defaults to a newline.
+Base64 encode bytes, the line ending defaults to a newline.
 
 =head2 camelize
 
   my $camelcase = camelize $snakecase;
 
-Convert snake case string to camel case and replace C<-> with C<::>.
+Convert snake_case string to CamelCase and replace C<-> with C<::>.
 
   # "FooBar"
   camelize 'foo_bar';
@@ -424,7 +445,7 @@ Convert class name to path.
 
   my $snakecase = decamelize $camelcase;
 
-Convert camel case string to snake case and replace C<::> with C<->.
+Convert CamelCase string to snake_case and replace C<::> with C<->.
 
   # "foo_bar"
   decamelize 'FooBar';
@@ -463,9 +484,9 @@ with C<0x0d 0x0a> or C<0x0a>.
 
 =head2 hmac_sha1_sum
 
-  my $checksum = hmac_sha1_sum $str, 'passw0rd';
+  my $checksum = hmac_sha1_sum $bytes, 'passw0rd';
 
-Generate HMAC-SHA1 checksum for string.
+Generate HMAC-SHA1 checksum for bytes.
 
 =head2 html_unescape
 
@@ -475,15 +496,15 @@ Unescape all HTML entities in string.
 
 =head2 md5_bytes
 
-  my $checksum = md5_bytes $str;
+  my $checksum = md5_bytes $bytes;
 
-Generate binary MD5 checksum for string.
+Generate binary MD5 checksum for bytes.
 
 =head2 md5_sum
 
-  my $checksum = md5_sum $str;
+  my $checksum = md5_sum $bytes;
 
-Generate MD5 checksum for string.
+Generate MD5 checksum for bytes.
 
 =head2 monkey_patch
 
@@ -523,21 +544,36 @@ Constant time comparison algorithm to prevent timing attacks.
 
 =head2 sha1_bytes
 
-  my $checksum = sha1_bytes $str;
+  my $checksum = sha1_bytes $bytes;
 
-Generate binary SHA1 checksum for string.
+Generate binary SHA1 checksum for bytes.
 
 =head2 sha1_sum
 
-  my $checksum = sha1_sum $str;
+  my $checksum = sha1_sum $bytes;
 
-Generate SHA1 checksum for string.
+Generate SHA1 checksum for bytes.
 
 =head2 slurp
 
   my $content = slurp '/etc/passwd';
 
 Read all data at once from file.
+
+=head2 split_header
+
+   my $tree = split_header 'foo="bar baz"; test=123, yada';
+
+Split HTTP header value.
+
+  # "one"
+  split_header('one; two="three four", five=six')->[0][0];
+
+  # "three four"
+  split_header('one; two="three four", five=six')->[0][3];
+
+  # "five"
+  split_header('one; two="three four", five=six')->[1][0];
 
 =head2 spurt
 

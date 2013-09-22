@@ -274,9 +274,9 @@ sub _parse_formdata {
     }
 
     next unless my $disposition = $part->headers->content_disposition;
-    my ($filename) = $disposition =~ /[; ]filename="?([^"]*)"?/;
+    my ($filename) = $disposition =~ /[; ]filename\s*=\s*"?([^"]*)"?/;
     next if ($upload && !defined $filename) || (!$upload && defined $filename);
-    my ($name) = $disposition =~ /[; ]name="?([^";]+)"?/;
+    my ($name) = $disposition =~ /[; ]name\s*=\s*"?([^";]+)"?/;
     if ($charset) {
       $name     = do {my $tmp = decode($charset, $name); defined $tmp ? $tmp : $name} if $name;
       $filename = do {my $tmp = decode($charset, $filename); defined $tmp ? $tmp : $filename} if $filename;
@@ -294,6 +294,8 @@ sub _parse_formdata {
 }
 
 1;
+
+=encoding utf8
 
 =head1 NAME
 

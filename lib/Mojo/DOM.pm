@@ -1,7 +1,7 @@
 package Mojo::DOM;
 use Mojo::Base -base;
 use overload
-  '%{}'    => sub { shift->attrs },
+  '%{}'    => sub { shift->attr },
   'bool'   => sub {1},
   '""'     => sub { shift->to_xml },
   fallback => 1;
@@ -12,7 +12,7 @@ use Carp 'croak';
 use Mojo::Collection;
 use Mojo::DOM::CSS;
 use Mojo::DOM::HTML;
-use Mojo::Util 'squish';
+use Mojo::Util qw(deprecated squish);
 use Scalar::Util qw(blessed weaken);
 
 sub AUTOLOAD {
@@ -52,7 +52,7 @@ sub append_content {
 
 sub at { shift->find(@_)->[0] }
 
-sub attrs {
+sub attr {
   my $self = shift;
 
   # Hash
@@ -67,6 +67,12 @@ sub attrs {
   %$attrs = (%$attrs, %{ref $_[0] ? $_[0] : {@_}});
 
   return $self;
+}
+
+# DEPRECATED in Top Hat!
+sub attrs {
+  deprecated 'Mojo::DOM::attrs is DEPRECATED in favor of Mojo::DOM::attr';
+  shift->attr(@_);
 }
 
 sub children {
@@ -357,6 +363,8 @@ sub _trim {
 
 1;
 
+=encoding utf8
+
 =head1 NAME
 
 Mojo::DOM - Minimalistic HTML/XML DOM parser with CSS selectors
@@ -399,7 +407,7 @@ use it for validation.
 =head1 CASE SENSITIVITY
 
 L<Mojo::DOM> defaults to HTML semantics, that means all tags and attributes
-are lowercased and selectors need to be lower case as well.
+are lowercased and selectors need to be lowercase as well.
 
   my $dom = Mojo::DOM->new('<P ID="greeting">Hi!</P>');
   say $dom->at('p')->text;
@@ -476,12 +484,12 @@ L<Mojo::DOM::CSS> are supported.
   # Find first element with "svg" namespace definition
   my $namespace = $dom->at('[xmlns\:svg]')->{'xmlns:svg'};
 
-=head2 attrs
+=head2 attr
 
-  my $attrs = $dom->attrs;
-  my $foo   = $dom->attrs('foo');
-  $dom      = $dom->attrs({foo => 'bar'});
-  $dom      = $dom->attrs(foo => 'bar');
+  my $attrs = $dom->attr;
+  my $foo   = $dom->attr('foo');
+  $dom      = $dom->attr({foo => 'bar'});
+  $dom      = $dom->attr(foo => 'bar');
 
 Element attributes.
 
@@ -518,6 +526,7 @@ L<Mojo::DOM::CSS> are supported.
 
   # Extract information from multiple elements
   my @headers = $dom->find('h1, h2, h3')->pluck('text')->each;
+  my @links   = $dom->find('a[href]')->pluck(attr => 'href')->each;
 
 =head2 namespace
 
