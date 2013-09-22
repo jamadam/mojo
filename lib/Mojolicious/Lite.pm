@@ -216,13 +216,19 @@ full access to all HTTP features and information.
 
   use Mojolicious::Lite;
 
-  # Access request and response information
+  # Access request information
   get '/agent' => sub {
     my $self = shift;
     my $host = $self->req->url->to_abs->host;
     my $ua   = $self->req->headers->user_agent;
-    $self->res->headers->header('X-Bender' => 'Bite my shiny metal ass!');
     $self->render(text => "Request by $ua reached $host.");
+  };
+
+  # Echo the request body and send custom header with response
+  get '/echo' => sub {
+    my $self = shift;
+    $self->res->headers->header('X-Bender' => 'Bite my shiny metal ass!');
+    $self->render(data => $self->req->body);
   };
 
   app->start;
@@ -282,6 +288,9 @@ L<Mojolicious::Plugin::DefaultHelpers/"content">.
     <head><title><%= title %></title></head>
     <body><%= content %></body>
   </html>
+
+The stash or helpers like L<Mojolicious::Plugin::DefaultHelpers/"title"> can
+be used to pass additional data to the layout.
 
 =head2 Blocks
 
@@ -567,10 +576,10 @@ Prefixing multiple routes is another good use for C<under>.
   get '/baz' => {text => 'foo baz'};
 
   # / (reset)
-  under '/' => {message => 'whatever'};
+  under '/' => {msg => 'whatever'};
 
   # /bar
-  get '/bar' => {inline => '<%= $message %> works'};
+  get '/bar' => {inline => '<%= $msg %> works'};
 
   app->start;
 
@@ -934,14 +943,18 @@ L<Mojolicious::Guides::Cookbook/"REAL-TIME WEB">.
 
 You can use the L<Mojo::Log> object from L<Mojo/"log"> to portably collect
 debug messages and automatically disable them later in a production setup by
-changing the L<Mojolicious> operating mode.
+changing the L<Mojolicious> operating mode, which can also be retrieved from
+the attribute L<Mojolicious/"mode">.
 
   use Mojolicious::Lite;
 
+  # Prepare mode specific message during startup
+  my $msg = app->mode eq 'development' ? 'Development!' : 'Something else!';
+
   get '/' => sub {
     my $self = shift;
-    $self->app->log->debug('Rendering "Hello World!" message.');
-    $self->render(text => 'Hello World!');
+    $self->app->log->debug('Rendering mode specific message.');
+    $self->render(text => $msg);
   };
 
   app->log->debug('Starting application.');

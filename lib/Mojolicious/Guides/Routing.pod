@@ -465,6 +465,9 @@ L<Mojolicious::Controller/"url_for"> for this.
   # Generate URL "/foo/sebastian" for route "test"
   my $url = $self->url_for('test', name => 'sebastian');
 
+  # Generate URL "http://127.0.0.1:3000/foo/sebastian" for route "test"
+  my $url = $self->url_for('test', name => 'sebastian')->to_abs;
+
 Nameless routes get an automatically generated one assigned that is simply
 equal to the route itself without non-word characters.
 
@@ -775,8 +778,9 @@ unescaped and decoded from bytes to characters.
 =head2 Rearranging routes
 
 Until the first request has been handled, all routes can still be moved around
-or even removed. Especially for rearranging routes created by plugins this can
-be very useful.
+or even removed with methods like L<Mojolicious::Routes::Route/"add_child">
+and L<Mojolicious::Routes::Route/"remove">. Especially for rearranging routes
+created by plugins this can be very useful.
 
   # GET /example/show -> {controller => 'example', action => 'show'}
   my $show = $r->get('/show')->to('example#show');
@@ -785,6 +789,8 @@ be very useful.
   # Nothing
   $r->get('/secrets/show')->to('secrets#show')->name('show_secrets');
   $r->find('show_secrets')->remove;
+
+To find routes by their name you can use L<Mojolicious::Routes::Route/"find">.
 
 =head2 Conditions
 
@@ -833,7 +839,7 @@ You can also package your conditions as reusable plugins.
     $app->routes->add_condition(werewolf => sub {
       my ($route, $c, $captures, $days) = @_;
 
-      # Keep the werewolfs out!
+      # Keep the werewolves out!
       return undef if abs(14 - (phase(time))[2]) > ($days / 2);
 
       # It's ok, no werewolf

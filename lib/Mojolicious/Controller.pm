@@ -734,7 +734,8 @@ Get L<Mojo::Message::Request> object from L<Mojo::Transaction/"req">.
   my $userinfo = $c->req->url->to_abs->userinfo;
   my $host     = $c->req->url->to_abs->host;
   my $agent    = $c->req->headers->user_agent;
-  my $body     = $c->req->body;
+  my $bytes    = $c->req->body;
+  my $str      = $c->req->text;
   my $hash     = $c->req->json;
   my $foo      = $c->req->json('/23/foo');
   my $dom      = $c->req->dom;
@@ -878,6 +879,9 @@ that all stash values with a C<mojo.*> prefix are reserved for internal use.
   my $url = $c->url_for('mailto:sri@example.com');
 
 Generate a portable L<Mojo::URL> object with base for a route, path or URL.
+
+  # "http://127.0.0.1:3000/perldoc" if application has been started with Morbo
+  $c->url_for('/perldoc')->to_abs;
 
   # "/perldoc?foo=bar" if application is deployed under "/"
   $c->url_for('/perldoc')->query(foo => 'bar');

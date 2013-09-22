@@ -293,7 +293,7 @@ deployment location of your application.
 
 From time to time you might want to reuse parts of L<Mojolicious> applications
 like configuration files, database connection or helpers for other scripts,
-with this little mock server you can just embed them.
+with this little L<Mojo::Server> based mock server you can just embed them.
 
   use Mojo::Server;
 
@@ -308,8 +308,9 @@ with this little mock server you can just embed them.
 
 =head2 Web server embedding
 
-You can also use the built-in web server to embed L<Mojolicious> applications
-into alien environments like foreign event loops.
+You can also use L<Mojo::IOLoop/"one_tick"> to embed the built-in web server
+L<Mojo::Server::Daemon> into alien environments like foreign event loops that
+for some reason can't just be integrated with a new reactor backend.
 
   use Mojolicious::Lite;
   use Mojo::IOLoop;
@@ -979,12 +980,12 @@ can keep many parallel connections active at the same time.
 
   # Parallel non-blocking requests
   my $ua = Mojo::UserAgent->new;
-  $ua->get('http://mojolicio.us' => sub {
-    my ($ua, $tx) = @_;
+  $ua->get('http://metacpan.org/search?q=mojo' => sub {
+    my ($ua, $mojo) = @_;
     ...
   });
-  $ua->get('http://mojolicio.us/perldoc' => sub {
-    my ($ua, $tx) = @_;
+  $ua->get('http://metacpan.org/search?q=mango' => sub {
+    my ($ua, $mango) = @_;
     ...
   });
 
@@ -1001,15 +1002,15 @@ synchronize multiple non-blocking requests.
   use Mojo::UserAgent;
   use Mojo::IOLoop;
 
-  # Synchronize non-blocking requests and capture result
+  # Synchronize non-blocking requests and capture results
   my $ua    = Mojo::UserAgent->new;
   my $delay = Mojo::IOLoop->delay;
-  $ua->get('http://mojolicio.us'         => $delay->begin);
-  $ua->get('http://mojolicio.us/perldoc' => $delay->begin);
-  my ($tx, $tx2) = $delay->wait;
+  $ua->get('http://metacpan.org/search?q=mojo'  => $delay->begin);
+  $ua->get('http://metacpan.org/search?q=mango' => $delay->begin);
+  my ($mojo, $mango) = $delay->wait;
 
 The event L<Mojo::IOLoop::Delay/"finish"> can be used for code that needs to
-be able to work standalone as well as inside L<Mojolicious> applications.
+be able to work standalone as well as inside an already running event loop.
 
   use Mojo::UserAgent;
   use Mojo::IOLoop;
@@ -1018,11 +1019,11 @@ be able to work standalone as well as inside L<Mojolicious> applications.
   my $ua    = Mojo::UserAgent->new;
   my $delay = Mojo::IOLoop->delay;
   $delay->on(finish => sub {
-    my ($delay, $tx, $tx2) = @_;
+    my ($delay, $mojo, $mango) = @_;
     ...
   });
-  $ua->get('http://mojolicio.us'         => $delay->begin);
-  $ua->get('http://mojolicio.us/perldoc' => $delay->begin);
+  $ua->get('http://metacpan.org/search?q=mojo'  => $delay->begin);
+  $ua->get('http://metacpan.org/search?q=mango' => $delay->begin);
   $delay->wait unless Mojo::IOLoop->is_running;
 
 =head2 Command line
@@ -1067,9 +1068,9 @@ This can be an invaluable tool for testing your applications.
 
   $ ./myapp.pl get /welcome 'head > title'
 
-=head2 Oneliners
+=head2 One-liners
 
-For quick hacks and especially testing, L<ojo> oneliners are also a great
+For quick hacks and especially testing, L<ojo> one-liners are also a great
 choice.
 
   $ perl -Mojo -E 'say g("mojolicio.us")->dom->html->head->title->text'
@@ -1129,7 +1130,7 @@ namespace.
 
 =head2 Running code against your application
 
-Ever thought about running a quick oneliner against your L<Mojolicious>
+Ever thought about running a quick one-liner against your L<Mojolicious>
 application to test something? Thanks to the C<eval> command you can do just
 that, the application object itself can be accessed via C<app>.
 
@@ -1213,10 +1214,10 @@ rendering kicks in even if no actual code gets executed by the router. The
 renderer just picks up the C<text> value from the stash and generates a
 response.
 
-=head2 Hello World oneliners
+=head2 Hello World one-liners
 
 The C<Hello World> example above can get even a little bit shorter in an
-L<ojo> oneliner.
+L<ojo> one-liner.
 
   $ perl -Mojo -E 'a({text => "Hello World!"})->start' daemon
 

@@ -4,7 +4,7 @@ use Mojo::Base 'Mojo';
 # "Fry: Shut up and take my money!"
 use Carp 'croak';
 use Mojo::Exception;
-use Mojo::Util 'decamelize';
+use Mojo::Util qw(decamelize deprecated);
 use Mojolicious::Commands;
 use Mojolicious::Controller;
 use Mojolicious::Plugins;
@@ -41,7 +41,7 @@ has static   => sub { Mojolicious::Static->new };
 has types    => sub { Mojolicious::Types->new };
 
 our $CODENAME = 'Top Hat';
-our $VERSION  = '4.30';
+our $VERSION  = '4.41';
 
 sub AUTOLOAD {
   my $self = shift;
@@ -88,8 +88,12 @@ sub new {
   # Reduced log output outside of development mode
   $self->log->level('info') unless $mode eq 'development';
 
-  # Run mode before startup
-  if (my $sub = $self->can("${mode}_mode")) { $self->$sub(@_) }
+  # DEPRECATED in Top Hat!
+  if (my $sub = $self->can("${mode}_mode")) {
+    deprecated qq{"sub ${mode}_mode {...}" in application class is DEPRECATED};
+    $self->$sub(@_);
+  }
+
   $self->startup(@_);
 
   return $self;
@@ -162,7 +166,7 @@ sub handler {
 
   # Delayed response
   $self->log->debug('Nothing has been rendered, expecting delayed response.')
-    unless $stash->{'mojo.rendered'} || $tx->is_writing;
+    unless $tx->is_writing;
 }
 
 sub helper {
@@ -255,24 +259,10 @@ L<Mojolicious::Controller>.
   $app     = $app->mode('production');
 
 The operating mode for your application, defaults to a value from the
-MOJO_MODE and PLACK_ENV environment variables or C<development>. You can also
-add per mode logic to your application by defining methods named
-C<${mode}_mode> in the application class, which will be called right before
-C<startup>.
-
-  sub development_mode {
-    my $self = shift;
-    ...
-  }
-
-  sub production_mode {
-    my $self = shift;
-    ...
-  }
-
-Right before calling C<startup> and mode specific methods, L<Mojolicious>
-will pick up the current mode, name the log file after it and raise the log
-level from C<debug> to C<info> if it has a value other than C<development>.
+MOJO_MODE and PLACK_ENV environment variables or C<development>. Right before
+calling C<startup>, L<Mojolicious> will pick up the current mode, name the log
+file after it and raise the log level from C<debug> to C<info> if it has a
+value other than C<development>.
 
 =head2 moniker
 
@@ -413,9 +403,9 @@ request.
 
   $app->dispatch(Mojolicious::Controller->new);
 
-The heart of every Mojolicious application, calls the C<static> and C<routes>
-dispatchers for every request and passes them a L<Mojolicious::Controller>
-object.
+The heart of every L<Mojolicious> application, calls the C<static> and
+C<routes> dispatchers for every request and passes them a
+L<Mojolicious::Controller> object.
 
 =head2 handler
 

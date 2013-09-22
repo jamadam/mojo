@@ -117,11 +117,11 @@ post sub { shift->render(text => 'prefixed POST works!') };
 
 get '/works' => sub { shift->render(text => 'prefix works!') };
 
-under '/prefix2' => {message => 'prefixed'};
+under '/prefix2' => {msg => 'prefixed'};
 
-get '/foo' => {inline => '<%= $message %>!'};
+get '/foo' => {inline => '<%= $msg %>!'};
 
-get '/bar' => {inline => 'also <%= $message %>!'};
+get '/bar' => {inline => 'also <%= $msg %>!'};
 
 # Reset
 under '/' => {foo => 'one'};
@@ -394,7 +394,8 @@ $t->get_ok('/some_formats')->status_is(404)
   ->content_type_is('text/html;charset=UTF-8')->content_is("Oops!\n");
 
 # Format "txt" has been detected
-$t->get_ok('/some_formats.txt')->status_is(200)->content_type_is('text/plain')
+$t->get_ok('/some_formats.txt')->status_is(200)
+  ->content_type_is('text/plain;charset=UTF-8')
   ->content_is('Some format detection.');
 
 # Format "json" has been detected
