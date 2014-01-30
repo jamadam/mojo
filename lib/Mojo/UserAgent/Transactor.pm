@@ -90,6 +90,8 @@ sub redirect {
   }
   elsif ($method ne 'HEAD') { $method = 'GET' }
   $new->req->method($method)->url($location);
+  $new->req->headers->user_agent($req->headers->user_agent);
+  $new->req->headers->accept_encoding($req->headers->accept_encoding);
   return $new->previous($old);
 }
 
