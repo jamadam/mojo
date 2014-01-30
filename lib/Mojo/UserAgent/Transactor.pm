@@ -83,13 +83,14 @@ sub redirect {
   my $new    = Mojo::Transaction::HTTP->new;
   my $req    = $old->req;
   my $method = uc $req->method;
-  if ($code eq 301 || $code eq 307 || $code eq 308) {
-    return undef unless my $req = $req->clone;
-    $new->req($req);
-    $req->headers->remove('Host')->remove('Cookie')->remove('Referer');
+  
+  return undef unless my $req2 = $req->clone;
+  $new->req($req2);
+  $req2->headers->remove('Host')->remove('Cookie')->remove('Referer');
+  unless ($code eq 301 || $code eq 307 || $code eq 308) {
+    $req2->method($method ne 'HEAD' ? 'GET' : 'HEAD');
   }
-  elsif ($method ne 'HEAD') { $method = 'GET' }
-  $new->req->method($method)->url($location);
+  $req2->url($location);
   return $new->previous($old);
 }
 
