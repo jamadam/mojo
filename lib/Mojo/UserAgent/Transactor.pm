@@ -86,7 +86,8 @@ sub redirect {
   if ($code eq 301 || $code eq 307 || $code eq 308) {
     return undef unless my $req = $req->clone;
     $new->req($req);
-    $req->headers->remove('Host')->remove('Cookie')->remove('Referer');
+    $req->headers->remove('Host')->remove('Cookie')
+                                  ->remove('Referer')->remove('Authorization');
   }
   elsif ($method ne 'HEAD') { $method = 'GET' }
   $new->req->method($method)->url($location);

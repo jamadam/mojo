@@ -785,4 +785,39 @@ is $tx->req->body, '',    'no content';
 is $tx->res->code, undef, 'no status';
 is $tx->res->headers->location, undef, 'no "Location" value';
 
+# 301 userinfo-leaking check
+$tx = $t->tx(POST => 'http://mojolicio.us/foo' => {Authorization => 'User'});
+$tx->res->code(301);
+$tx->res->headers->location('http://example.com/bar');
+$tx = $t->redirect($tx);
+is $tx->req->headers->authorization, undef, 'no "Authorization" value';
+
+# 302 userinfo-leaking check
+$tx = $t->tx(POST => 'http://mojolicio.us/foo' => {Authorization => 'User'});
+$tx->res->code(302);
+$tx->res->headers->location('http://example.com/bar');
+$tx = $t->redirect($tx);
+is $tx->req->headers->authorization, undef, 'no "Authorization" value';
+
+# 303 userinfo-leaking check
+$tx = $t->tx(POST => 'http://mojolicio.us/foo' => {Authorization => 'User'});
+$tx->res->code(303);
+$tx->res->headers->location('http://example.com/bar');
+$tx = $t->redirect($tx);
+is $tx->req->headers->authorization, undef, 'no "Authorization" value';
+
+# 307 userinfo-leaking check
+$tx = $t->tx(POST => 'http://mojolicio.us/foo' => {Authorization => 'User'});
+$tx->res->code(307);
+$tx->res->headers->location('http://example.com/bar');
+$tx = $t->redirect($tx);
+is $tx->req->headers->authorization, undef, 'no "Authorization" value';
+
+# 308 userinfo-leaking check
+$tx = $t->tx(POST => 'http://mojolicio.us/foo' => {Authorization => 'User'});
+$tx->res->code(308);
+$tx->res->headers->location('http://example.com/bar');
+$tx = $t->redirect($tx);
+is $tx->req->headers->authorization, undef, 'no "Authorization" value';
+
 done_testing();
