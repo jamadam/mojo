@@ -1,14 +1,13 @@
 language: perl
 perl:
-  - "5.18"
-  - "5.16"
   - "5.14"
   - "5.12"
   - "5.10"
+  - "5.8"
 env:
-  - "HARNESS_OPTIONS=j9 TEST_POD=1 TEST_EV=1"
+  - "HARNESS_OPTIONS=j9 TEST_EV=1"
 install:
-  - "cpanm -n Test::Pod Test::Pod::Coverage EV"
+  - "cpanm -n EV"
   - "cpanm -n --installdeps ."
 notifications:
-  email: false
+  email: sugama@jamadam.com
