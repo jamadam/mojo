@@ -3,7 +3,7 @@ use Mojo::Base 'Mojo::EventEmitter';
 
 use Mojo;
 use Mojo::IOLoop;
-BEGIN {eval {require Hash::Util::FieldHash; import Hash::Util::FieldHash qw(fieldhash)} || eval {require Hash::FieldHash; import Hash::FieldHash qw(fieldhash)}}
+BEGIN {eval {require Hash::Util::FieldHash; import Hash::Util::FieldHash qw(fieldhash); 1} || eval {require Hash::FieldHash; import Hash::FieldHash qw(fieldhash)}}
 
 has ioloop => sub { Mojo::IOLoop->singleton };
 
