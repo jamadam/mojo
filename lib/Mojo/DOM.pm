@@ -60,7 +60,8 @@ sub attr {
   return defined $attrs->{$_[0]} ? $attrs->{$_[0]} : '' unless @_ > 1 || ref $_[0];
 
   # Set
-  %$attrs = (%$attrs, %{ref $_[0] ? $_[0] : {@_}});
+  my $values = ref $_[0] ? $_[0] : {@_};
+  @$attrs{keys %$values} = values %$values;
 
   return $self;
 }
