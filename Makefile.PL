@@ -16,6 +16,7 @@ WriteMakefile(
     'Pod::Simple'             => '3.09',
     'Digest::SHA'             => '0',
     'Socket'                  => '1.81',
+    'IO::Socket'              => '1.31',
     'Test::More'              => '0.98',
     !(eval 'use Hash::Util::FieldHash; 1')
                                       ? ('Hash::FieldHash' => '0') : (),
