@@ -148,8 +148,7 @@ sub to_abs {
   # Inherit path
   my $base_path = $base->path;
   if (!@{$path->parts}) {
-    $path
-      = $abs->path($base_path->clone)->path->trailing_slash(0)->canonicalize;
+    $path = $abs->path($base_path->clone)->path->canonicalize;
 
     # Query
     return $abs if length $abs->query->to_string;

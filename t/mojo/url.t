@@ -694,4 +694,10 @@ is $url->to_abs($base), 'http://a/', 'right absolute version';
 $url = Mojo::URL->new('../../g');
 is $url->to_abs($base), 'http://a/g', 'right absolute version';
 
+my $base2 = Mojo::URL->new('http://a/b/');
+$url = Mojo::URL->new('');
+is $url->to_abs($base2), 'http://a/b/', 'right absolute version';
+$url = Mojo::URL->new('#');
+is $url->to_abs($base2), 'http://a/b/#', 'right absolute version';
+
 done_testing();
