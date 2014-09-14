@@ -39,10 +39,12 @@ sub import {
   
   if( $] < 5.010 ) {
     my $caller = caller;
-      require Perl6::Say;
-      Perl6::Say->import;
-      no strict 'refs';
-      *{$caller . '::say'} = \&Perl6::Say::say;
+    require Perl6::Say;
+    Perl6::Say->import;
+    no strict 'refs';
+    *{$caller . '::say'} = \&Perl6::Say::say;
+  } else {
+    require feature;
   }
 
   # Mojo modules are strict!
