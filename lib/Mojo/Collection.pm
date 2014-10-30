@@ -1,19 +1,20 @@
 package Mojo::Collection;
 use Mojo::Base -strict;
-use overload
-  bool     => sub { !!@{shift()} },
-  '""'     => sub { shift->join("\n") },
-  fallback => 1;
+use overload bool => sub {1}, '""' => sub { shift->join("\n") }, fallback => 1;
 
 use Carp 'croak';
 use Exporter 'import';
 use List::Util;
 use Mojo::ByteStream;
+use Mojo::Util 'deprecated';
 use Scalar::Util 'blessed';
 
 our @EXPORT_OK = ('c');
 
+# DEPRECATED in Tiger Face!
 sub AUTOLOAD {
+  deprecated 'Mojo::Collection::AUTOLOAD is DEPRECATED in favor of'
+    . ' Mojo::Collection::pluck';
   my $self = shift;
   my ($package, $method) = our $AUTOLOAD =~ /^(.+)::(.+)$/;
   croak "Undefined subroutine &${package}::$method called"
@@ -21,6 +22,7 @@ sub AUTOLOAD {
   return $self->pluck($method, @_);
 }
 
+# DEPRECATED in Tiger Face!
 sub DESTROY { }
 
 sub c { __PACKAGE__->new(@_) }
@@ -339,17 +341,6 @@ Alias for L<Mojo::Base/"tap">.
 
 Create a new collection without duplicate elements.
 
-=head1 AUTOLOAD
-
-In addition to the L</"METHODS"> above, you can also call methods provided by
-all elements in the collection directly and create a new collection from the
-results, similar to L</"pluck">.
-
-  # "<h2>Test1</h2><h2>Test2</h2>"
-  my $collection = Mojo::Collection->new(
-    Mojo::DOM->new("<h1>1</h1>"), Mojo::DOM->new("<h1>2</h1>"));
-  $collection->at('h1')->type('h2')->prepend_content('Test')->join;
-
 =head1 OPERATORS
 
 L<Mojo::Collection> overloads the following operators.
@@ -358,7 +349,7 @@ L<Mojo::Collection> overloads the following operators.
 
   my $bool = !!$collection;
 
-True or false, depending on if the collection is empty.
+Always true.
 
 =head2 stringify
 
