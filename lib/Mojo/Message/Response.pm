@@ -87,7 +87,7 @@ sub cookies {
   return $self;
 }
 
-sub default_message { $MESSAGES{$_[1] || defined $_[0]->code ? $_[0]->code : 404} || '' }
+sub default_message { $MESSAGES{$_[1] || (defined $_[0]->code ? $_[0]->code : 404)} || '' }
 
 sub extract_start_line {
   my ($self, $bufref) = @_;
