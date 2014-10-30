@@ -43,7 +43,7 @@ has types     => sub { Mojolicious::Types->new };
 has validator => sub { Mojolicious::Validator->new };
 
 our $CODENAME = 'Tiger Face';
-our $VERSION  = '5.42';
+our $VERSION  = '5.47';
 
 sub AUTOLOAD {
   my $self = shift;
@@ -893,6 +893,8 @@ Leon Brocard
 Magnus Holm
 
 Maik Fischer
+
+Mark Grimes
 
 Mark Stosberg
 
