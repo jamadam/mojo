@@ -40,7 +40,7 @@ has tmpdir => sub { $ENV{MOJO_TMPDIR} || File::Spec::Functions::tmpdir };
 sub DESTROY {
   my $self = shift;
   return unless $self->cleanup && defined(my $path = $self->path);
-  close $self->handle;
+  close $self->handle if $self->handle;
   unlink $path if -w $path;
 }
 
